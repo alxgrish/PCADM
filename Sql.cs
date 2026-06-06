@@ -12,7 +12,7 @@ namespace PCAdministration_
 {
     internal class Sql
     {
-        public static DataTable Query(string request, MySqlParameter[] parameters = null)
+        public static DataTable? Query(string request, MySqlParameter[]? parameters = null)
         {
             using (MySqlConnection mySqlConnection = new MySqlConnection(ConnectionStringBuilding.ConnectionString))
             {
@@ -21,7 +21,7 @@ namespace PCAdministration_
                     mySqlConnection.Open();
                     using (MySqlCommand mySqlCommand = new MySqlCommand(request, mySqlConnection))
                     {
-                        if (parameters != null)
+                        if (parameters is not null)
                             mySqlCommand.Parameters.AddRange(parameters);
                         using (MySqlDataAdapter adapter = new MySqlDataAdapter(mySqlCommand))
                         {
@@ -39,7 +39,7 @@ namespace PCAdministration_
             }
         }
 
-        public static object QueryOneReturn(string request, MySqlParameter[] parameters = null)
+        public static object? QueryOneReturn(string request, MySqlParameter[]? parameters = null)
         {
             using (MySqlConnection mySqlConnection = new MySqlConnection(ConnectionStringBuilding.ConnectionString))
             {
@@ -48,7 +48,7 @@ namespace PCAdministration_
                     mySqlConnection.Open();
                     using (MySqlCommand mySqlCommand = new MySqlCommand(request, mySqlConnection))
                     {
-                        if (parameters != null)
+                        if (parameters is not null)
                             mySqlCommand.Parameters.AddRange(parameters);
 
                         using (MySqlDataReader rdr = mySqlCommand.ExecuteReader())
@@ -65,14 +65,10 @@ namespace PCAdministration_
                     SqlRequestErrors(ex);
                     return null;
                 }
-                finally
-                {
-                    mySqlConnection.Close();
-                }
             }
         }
 
-        public static bool QueryNonReturns(string request, MySqlParameter[] parameters = null)
+        public static bool QueryNonReturns(string request, MySqlParameter[]? parameters = null)
         {
             using (MySqlConnection mySqlConnection = new MySqlConnection(ConnectionStringBuilding.ConnectionString))
             {
@@ -81,7 +77,7 @@ namespace PCAdministration_
                     mySqlConnection.Open();
                     using (MySqlCommand mySqlCommand = new MySqlCommand(request, mySqlConnection))
                     {
-                        if (parameters != null)
+                        if (parameters is not null)
                             mySqlCommand.Parameters.AddRange(parameters);
 
                         int rowsAffected = mySqlCommand.ExecuteNonQuery();
@@ -92,10 +88,6 @@ namespace PCAdministration_
                 {
                     SqlRequestErrors(ex);
                     return false;
-                }
-                finally
-                {
-                    mySqlConnection.Close();
                 }
             }
         }
