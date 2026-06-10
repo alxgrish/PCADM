@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="MySql.Data" Version="9.7.0" />
     <PackageReference Include="RoyalApps.Community.Rdp.WinForms" Version="1.1.0" />
   </ItemGroup>
 
