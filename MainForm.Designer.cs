@@ -1,6 +1,6 @@
 ﻿namespace PCADM
 {
-    partial class Form1
+    partial class MainForm
     {
         /// <summary>
         ///  Required designer variable.
@@ -30,15 +30,17 @@
         {
             dataGridView1 = new DataGridView();
             label1 = new Label();
-            button1 = new Button();
-            button2 = new Button();
+            btn_taskSave = new Button();
+            btn_toArchive = new Button();
             label2 = new Label();
-            button3 = new Button();
-            button4 = new Button();
-            button5 = new Button();
+            btn_taskComplite = new Button();
+            btn_pingToPC = new Button();
+            btn_remoteDesctop = new Button();
             pictureBox1 = new PictureBox();
             label3 = new Label();
             pictureBox2 = new PictureBox();
+            btn_Administ = new Button();
+            btn_BData = new Button();
             ((System.ComponentModel.ISupportInitialize)dataGridView1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox2).BeginInit();
@@ -61,23 +63,23 @@
             label1.TabIndex = 1;
             label1.Text = "ПК и статусы";
             // 
-            // button1
+            // btn_taskSave
             // 
-            button1.Location = new Point(12, 12);
-            button1.Name = "button1";
-            button1.Size = new Size(143, 23);
-            button1.TabIndex = 2;
-            button1.Text = "Принять задание";
-            button1.UseVisualStyleBackColor = true;
+            btn_taskSave.Location = new Point(12, 12);
+            btn_taskSave.Name = "btn_taskSave";
+            btn_taskSave.Size = new Size(143, 23);
+            btn_taskSave.TabIndex = 2;
+            btn_taskSave.Text = "Принять задание";
+            btn_taskSave.UseVisualStyleBackColor = true;
             // 
-            // button2
+            // btn_toArchive
             // 
-            button2.Location = new Point(172, 12);
-            button2.Name = "button2";
-            button2.Size = new Size(143, 23);
-            button2.TabIndex = 2;
-            button2.Text = "В архив";
-            button2.UseVisualStyleBackColor = true;
+            btn_toArchive.Location = new Point(172, 12);
+            btn_toArchive.Name = "btn_toArchive";
+            btn_toArchive.Size = new Size(143, 23);
+            btn_toArchive.TabIndex = 2;
+            btn_toArchive.Text = "В архив";
+            btn_toArchive.UseVisualStyleBackColor = true;
             // 
             // label2
             // 
@@ -89,33 +91,33 @@
             label2.Text = "Роль";
             label2.Click += label2_Click;
             // 
-            // button3
+            // btn_taskComplite
             // 
-            button3.Location = new Point(12, 41);
-            button3.Name = "button3";
-            button3.Size = new Size(143, 23);
-            button3.TabIndex = 2;
-            button3.Text = "Завершить задание";
-            button3.UseVisualStyleBackColor = true;
+            btn_taskComplite.Location = new Point(12, 41);
+            btn_taskComplite.Name = "btn_taskComplite";
+            btn_taskComplite.Size = new Size(143, 23);
+            btn_taskComplite.TabIndex = 2;
+            btn_taskComplite.Text = "Завершить задание";
+            btn_taskComplite.UseVisualStyleBackColor = true;
             // 
-            // button4
+            // btn_pingToPC
             // 
-            button4.Location = new Point(172, 41);
-            button4.Name = "button4";
-            button4.Size = new Size(143, 23);
-            button4.TabIndex = 2;
-            button4.Text = "Пинг на пк";
-            button4.UseVisualStyleBackColor = true;
+            btn_pingToPC.Location = new Point(172, 41);
+            btn_pingToPC.Name = "btn_pingToPC";
+            btn_pingToPC.Size = new Size(143, 23);
+            btn_pingToPC.TabIndex = 2;
+            btn_pingToPC.Text = "Пинг на пк";
+            btn_pingToPC.UseVisualStyleBackColor = true;
             // 
-            // button5
+            // btn_remoteDesctop
             // 
-            button5.Location = new Point(12, 70);
-            button5.Name = "button5";
-            button5.Size = new Size(303, 70);
-            button5.TabIndex = 2;
-            button5.Text = "Удаленный рабочий стол";
-            button5.UseVisualStyleBackColor = true;
-            button5.Click += button5_Click;
+            btn_remoteDesctop.Location = new Point(12, 99);
+            btn_remoteDesctop.Name = "btn_remoteDesctop";
+            btn_remoteDesctop.Size = new Size(303, 41);
+            btn_remoteDesctop.TabIndex = 2;
+            btn_remoteDesctop.Text = "Удаленный рабочий стол";
+            btn_remoteDesctop.UseVisualStyleBackColor = true;
+            btn_remoteDesctop.Click += button5_Click;
             // 
             // pictureBox1
             // 
@@ -130,7 +132,7 @@
             label3.AutoSize = true;
             label3.Location = new Point(491, 41);
             label3.Name = "label3";
-            label3.Size = new Size(101, 15);
+            label3.Size = new Size(100, 15);
             label3.TabIndex = 1;
             label3.Text = "QR код для входа";
             label3.Click += label2_Click;
@@ -145,23 +147,45 @@
             pictureBox2.TabIndex = 4;
             pictureBox2.TabStop = false;
             // 
-            // Form1
+            // btn_Administ
+            // 
+            btn_Administ.Location = new Point(12, 70);
+            btn_Administ.Name = "btn_Administ";
+            btn_Administ.Size = new Size(143, 23);
+            btn_Administ.TabIndex = 2;
+            btn_Administ.Text = "Администрирование";
+            btn_Administ.UseVisualStyleBackColor = true;
+            btn_Administ.Click += btn_Administ_Click;
+            // 
+            // btn_BData
+            // 
+            btn_BData.Location = new Point(172, 70);
+            btn_BData.Name = "btn_BData";
+            btn_BData.Size = new Size(143, 23);
+            btn_BData.TabIndex = 2;
+            btn_BData.Text = "Данные базы";
+            btn_BData.UseVisualStyleBackColor = true;
+            btn_BData.Click += Btn_BData_Click;
+            // 
+            // MainForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
             Controls.Add(pictureBox2);
             Controls.Add(pictureBox1);
-            Controls.Add(button2);
-            Controls.Add(button5);
-            Controls.Add(button4);
-            Controls.Add(button3);
-            Controls.Add(button1);
+            Controls.Add(btn_toArchive);
+            Controls.Add(btn_remoteDesctop);
+            Controls.Add(btn_BData);
+            Controls.Add(btn_pingToPC);
+            Controls.Add(btn_Administ);
+            Controls.Add(btn_taskComplite);
+            Controls.Add(btn_taskSave);
             Controls.Add(label3);
             Controls.Add(label2);
             Controls.Add(label1);
             Controls.Add(dataGridView1);
-            Name = "Form1";
+            Name = "MainForm";
             Text = "ФИО ПОЛЬЗОВАТЕЛЯ";
             ((System.ComponentModel.ISupportInitialize)dataGridView1).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
@@ -174,14 +198,16 @@
 
         private DataGridView dataGridView1;
         private Label label1;
-        private Button button1;
-        private Button button2;
+        private Button btn_taskSave;
+        private Button btn_toArchive;
         private Label label2;
-        private Button button3;
-        private Button button4;
-        private Button button5;
+        private Button btn_taskComplite;
+        private Button btn_pingToPC;
+        private Button btn_remoteDesctop;
         private PictureBox pictureBox1;
         private Label label3;
         private PictureBox pictureBox2;
+        private Button btn_Administ;
+        private Button btn_BData;
     }
 }

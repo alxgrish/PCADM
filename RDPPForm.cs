@@ -5,9 +5,9 @@ using RoyalApps.Community.Rdp.WinForms.Configuration; // Для ResizeBehavior
 
 namespace PCADM
 {
-    public partial class RDPP : Form
+    public partial class RDPPForm : System.Windows.Forms.Form
     {
-        public RDPP()
+        public RDPPForm()
         {
             InitializeComponent();
             this.Shown += RDPP_Shown;

@@ -38,7 +38,6 @@ namespace PCAdministration_
                 }
             }
         }
-
         public static object? QueryOneReturn(string request, MySqlParameter[]? parameters = null)
         {
             using (MySqlConnection mySqlConnection = new MySqlConnection(ConnectionStringBuilding.ConnectionString))
@@ -67,7 +66,6 @@ namespace PCAdministration_
                 }
             }
         }
-
         public static bool QueryNonReturns(string request, MySqlParameter[]? parameters = null)
         {
             using (MySqlConnection mySqlConnection = new MySqlConnection(ConnectionStringBuilding.ConnectionString))
