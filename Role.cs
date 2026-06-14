@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace PCAdministration_
 {
-    internal class Role
+    public class Role
     {
         private RoleType role;
         public Role() { }

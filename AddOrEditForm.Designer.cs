@@ -237,6 +237,7 @@
             Font = new Font("Segoe UI", 15.75F, FontStyle.Regular, GraphicsUnit.Point, 204);
             Margin = new Padding(5, 6, 5, 6);
             Name = "AddOrEditForm";
+            StartPosition = FormStartPosition.CenterParent;
             Text = "AddOrEditForm";
             NumericAndTextBoxGroupBox.ResumeLayout(false);
             NumericAndTextBoxGroupBox.PerformLayout();

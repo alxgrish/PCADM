@@ -1,4 +1,5 @@
 using MSTSCLib;
+using PCAdministration_;
 using RoyalApps.Community.Rdp;
 
 namespace PCADM
@@ -23,7 +24,8 @@ namespace PCADM
 
         private void btn_Administ_Click(object sender, EventArgs e)
         {
-
+            AdminForm admin = new AdminForm(new Role(Role.RoleType.Admin));
+            admin.ShowDialog();
         }
         private void Btn_BData_Click(object sender, EventArgs e)
         {
