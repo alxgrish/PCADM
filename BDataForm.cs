@@ -89,7 +89,7 @@ namespace PCADM
             switch (table)
             {
                 case Tables.Cabinet:
-                    form = new (table);
+                    form = new(table);
                     if (form.ShowDialog() != DialogResult.OK)
                         return;
                     if (!Sql.QueryNonReturns($"insert into `{table}`(name, floor) " +
@@ -100,7 +100,7 @@ namespace PCADM
                         MessageBoxForErrorsToShow();
                     break;
                 case Tables.PC:
-                    form = new (table);
+                    form = new(table);
                     if (form.ShowDialog() != DialogResult.OK)
                         return;
                     if (!Sql.QueryNonReturns($"insert into `{table}`(cabinet_id, pc_number, ip) " +
@@ -127,7 +127,7 @@ namespace PCADM
             }
             ShowTable();
         }
-        
+
         private void btnEdit_Click(object sender, EventArgs e)
         {
             AddOrEditForm form;
@@ -229,5 +229,8 @@ namespace PCADM
                 btnDelete.Enabled = false;
             }
         }
+
+        private void menuUpdate_Click(object sender, EventArgs e)
+            => ShowTable();
     }
 }

@@ -50,6 +50,9 @@
             menuAdd = new ToolStripMenuItem();
             menuEdit = new ToolStripMenuItem();
             searchTextBox = new TextBox();
+            menuPrint = new ToolStripMenuItem();
+            menuDel = new ToolStripMenuItem();
+            menuUpdate = new ToolStripMenuItem();
             topPanel.SuspendLayout();
             mainMenu.SuspendLayout();
             rightPanel.SuspendLayout();
@@ -291,21 +294,23 @@
             // 
             // contextMenu
             // 
-            contextMenu.Items.AddRange(new ToolStripItem[] { menuAdd, menuEdit });
+            contextMenu.Items.AddRange(new ToolStripItem[] { menuAdd, menuPrint, menuEdit, menuDel, menuUpdate });
             contextMenu.Name = "contextMenu";
-            contextMenu.Size = new Size(169, 48);
+            contextMenu.Size = new Size(181, 136);
             // 
             // menuAdd
             // 
             menuAdd.Name = "menuAdd";
-            menuAdd.Size = new Size(168, 22);
-            menuAdd.Text = "+ контекст меню";
+            menuAdd.Size = new Size(180, 22);
+            menuAdd.Text = "Добавить";
+            menuAdd.Click += btnAdd_Click;
             // 
             // menuEdit
             // 
             menuEdit.Name = "menuEdit";
-            menuEdit.Size = new Size(168, 22);
-            menuEdit.Text = "+ маин меню";
+            menuEdit.Size = new Size(180, 22);
+            menuEdit.Text = "Редактировать";
+            menuEdit.Click += btnEdit_Click;
             // 
             // searchTextBox
             // 
@@ -318,6 +323,27 @@
             searchTextBox.PlaceholderText = "Введите символы для поиска";
             searchTextBox.Size = new Size(652, 25);
             searchTextBox.TabIndex = 0;
+            // 
+            // menuPrint
+            // 
+            menuPrint.Name = "menuPrint";
+            menuPrint.Size = new Size(180, 22);
+            menuPrint.Text = "Печать";
+            menuPrint.Click += btnPrint_Click;
+            // 
+            // menuDel
+            // 
+            menuDel.Name = "menuDel";
+            menuDel.Size = new Size(180, 22);
+            menuDel.Text = "Удалить";
+            menuDel.Click += btnDelete_Click;
+            // 
+            // menuUpdate
+            // 
+            menuUpdate.Name = "menuUpdate";
+            menuUpdate.Size = new Size(180, 22);
+            menuUpdate.Text = "Обновить";
+            menuUpdate.Click += menuUpdate_Click;
             // 
             // BDataForm
             // 
@@ -368,5 +394,8 @@
         private ToolStripMenuItem MenuItemPCs;
         private ToolStripMenuItem MenuItemProblems;
         private ToolStripMenuItem MenuItemArchiveRecorders;
+        private ToolStripMenuItem menuPrint;
+        private ToolStripMenuItem menuDel;
+        private ToolStripMenuItem menuUpdate;
     }
 }
