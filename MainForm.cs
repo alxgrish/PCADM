@@ -56,6 +56,15 @@ namespace PCADM
             grid.DataSource = tb;
             if (grid.ColumnCount > 0)
                 grid.Columns[0].Visible = false;
+            foreach (DataGridViewRow row in grid.Rows)
+            {
+                int TaskNum = Convert.ToInt32(row.Cells[5].Value);
+                if (TaskNum is 0)
+                    row.DefaultCellStyle.BackColor = ColorTranslator.FromHtml("#61CD28");
+                else if (TaskNum is 1 or 2)
+                    row.DefaultCellStyle.BackColor = Color.Yellow;
+                else row.DefaultCellStyle.BackColor = ColorTranslator.FromHtml("#FF5333");
+            }
             grid.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
             grid.Visible = true;
             ContextFilter.ResetFilter(grid, menuItemFilter);
