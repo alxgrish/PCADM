@@ -127,7 +127,7 @@ namespace PCADM
                 "`p`.`type`, `p`.`priority`, `t`.`status` FROM `Tickets` t " +
                 "LEFT JOIN `User` u ON `t`.`user_id` = `u`.`id` LEFT JOIN `User` u_m " +
                 "ON `t`.`master_user_id` = `u_m`.`id` LEFT JOIN `Problem` p " +
-                "ON `t`.`problem_id` = `p`.id WHERE `t`.`pc_id` = @id", [ new ("@id", row.Cells[0].Value)]);
+                "ON `t`.`problem_id` = `p`.id WHERE `t`.`pc_id` = @id", [new("@id", row.Cells[0].Value)]);
             var items = new List<object>();
             for (int i = 0; i < TaskNum; i++)
             {
@@ -137,7 +137,7 @@ namespace PCADM
                 else continue;
                 // opening
                 tb.SelectionFont = new Font(tb.Font, FontStyle.Bold);
-                tb.AppendText($"Задача {i + 1}:" );
+                tb.AppendText($"Задача {i + 1}:");
                 items.Add(new { Id = tRow[0], Name = $"Задача {i + 1}" });
                 tb.SelectionFont = tb.Font;
                 tb.AppendText(Environment.NewLine);
@@ -175,6 +175,23 @@ namespace PCADM
             comboBoxSelectTask.DataSource = items;
             comboBoxSelectTask.DisplayMember = "Name";
             comboBoxSelectTask.ValueMember = "Id";
+        }
+        int? userId;
+        private void MenuItemRegist_Click(object sender, EventArgs e)
+        {
+            var form = new RegForm();
+            if (form.ShowDialog() != DialogResult.OK)
+            {
+                userId = null;
+                TextBoxLogin.Text = "Login";
+                TextBoxRole.Text = "Role";
+                return;
+            }
+            userId = form.UserId;
+            TextBoxLogin.Text = form.UserLogin;
+            Role.RoleType userRole = form.UserRole;
+            TextBoxRole.Text = userRole.ToString();
+            //
         }
     }
 }

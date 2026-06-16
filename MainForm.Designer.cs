@@ -38,7 +38,6 @@
             menuUpdate = new ToolStripMenuItem();
             menuItemFilter = new ToolStripMenuItem();
             label1 = new Label();
-            btn_taskSave = new Button();
             btn_qrCode = new Button();
             btn_taskComplite = new Button();
             btn_pingToPC = new Button();
@@ -47,12 +46,15 @@
             btn_Administ = new Button();
             btn_BData = new Button();
             menuStrip = new MenuStrip();
-            toolStripTextBox1 = new ToolStripTextBox();
+            TextBoxRole = new ToolStripTextBox();
             MainMenuItem = new ToolStripMenuItem();
             label2 = new Label();
             textBoxPCStatus = new RichTextBox();
             comboBoxSelectTask = new ComboBox();
             label3 = new Label();
+            btn_taskSave = new Button();
+            TextBoxLogin = new ToolStripTextBox();
+            MenuItemRegist = new ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)grid).BeginInit();
             contextMenu.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox2).BeginInit();
@@ -130,15 +132,6 @@
             label1.TabIndex = 1;
             label1.Text = "ПК и статусы";
             // 
-            // btn_taskSave
-            // 
-            btn_taskSave.Location = new Point(12, 47);
-            btn_taskSave.Name = "btn_taskSave";
-            btn_taskSave.Size = new Size(143, 23);
-            btn_taskSave.TabIndex = 2;
-            btn_taskSave.Text = "Принять задание";
-            btn_taskSave.UseVisualStyleBackColor = true;
-            // 
             // btn_qrCode
             // 
             btn_qrCode.Location = new Point(172, 47);
@@ -208,22 +201,23 @@
             // 
             // menuStrip
             // 
-            menuStrip.Items.AddRange(new ToolStripItem[] { toolStripTextBox1, MainMenuItem });
+            menuStrip.Items.AddRange(new ToolStripItem[] { TextBoxRole, MainMenuItem, TextBoxLogin });
             menuStrip.Location = new Point(0, 0);
             menuStrip.Name = "menuStrip";
             menuStrip.Size = new Size(800, 27);
             menuStrip.TabIndex = 5;
             menuStrip.Text = "menuStrip1";
             // 
-            // toolStripTextBox1
+            // TextBoxRole
             // 
-            toolStripTextBox1.Alignment = ToolStripItemAlignment.Right;
-            toolStripTextBox1.Name = "toolStripTextBox1";
-            toolStripTextBox1.Size = new Size(100, 23);
-            toolStripTextBox1.Text = "Роль";
+            TextBoxRole.Alignment = ToolStripItemAlignment.Right;
+            TextBoxRole.Name = "TextBoxRole";
+            TextBoxRole.Size = new Size(100, 23);
+            TextBoxRole.Text = "Роль";
             // 
             // MainMenuItem
             // 
+            MainMenuItem.DropDownItems.AddRange(new ToolStripItem[] { MenuItemRegist });
             MainMenuItem.Name = "MainMenuItem";
             MainMenuItem.Size = new Size(48, 23);
             MainMenuItem.Text = "Файл";
@@ -239,21 +233,21 @@
             // 
             // textBoxPCStatus
             // 
+            textBoxPCStatus.BackColor = Color.LightGray;
             textBoxPCStatus.Location = new Point(468, 207);
-            textBoxPCStatus.Multiline = true;
             textBoxPCStatus.Name = "textBoxPCStatus";
             textBoxPCStatus.Size = new Size(320, 266);
             textBoxPCStatus.TabIndex = 7;
-            textBoxPCStatus.BackColor = Color.LightGray;
+            textBoxPCStatus.Text = "";
             // 
             // comboBoxSelectTask
             // 
+            comboBoxSelectTask.DropDownStyle = ComboBoxStyle.DropDownList;
             comboBoxSelectTask.FormattingEnabled = true;
             comboBoxSelectTask.Location = new Point(655, 178);
             comboBoxSelectTask.Name = "comboBoxSelectTask";
             comboBoxSelectTask.Size = new Size(121, 23);
             comboBoxSelectTask.TabIndex = 8;
-            comboBoxSelectTask.DropDownStyle = ComboBoxStyle.DropDownList;
             // 
             // label3
             // 
@@ -263,6 +257,29 @@
             label3.Size = new Size(116, 15);
             label3.TabIndex = 1;
             label3.Text = "Выбранное задание";
+            // 
+            // btn_taskSave
+            // 
+            btn_taskSave.Location = new Point(12, 47);
+            btn_taskSave.Name = "btn_taskSave";
+            btn_taskSave.Size = new Size(143, 23);
+            btn_taskSave.TabIndex = 2;
+            btn_taskSave.Text = "Принять задание";
+            btn_taskSave.UseVisualStyleBackColor = true;
+            // 
+            // TextBoxLogin
+            // 
+            TextBoxLogin.Alignment = ToolStripItemAlignment.Right;
+            TextBoxLogin.Name = "TextBoxLogin";
+            TextBoxLogin.Size = new Size(100, 23);
+            TextBoxLogin.Text = "Логин";
+            // 
+            // MenuItemRegist
+            // 
+            MenuItemRegist.Name = "MenuItemRegist";
+            MenuItemRegist.Size = new Size(180, 22);
+            MenuItemRegist.Text = "Войти";
+            MenuItemRegist.Click += MenuItemRegist_Click;
             // 
             // MainForm
             // 
@@ -301,7 +318,6 @@
 
         private DataGridView grid;
         private Label label1;
-        private Button btn_taskSave;
         private Button btn_qrCode;
         private Button btn_taskComplite;
         private Button btn_pingToPC;
@@ -310,7 +326,7 @@
         private Button btn_Administ;
         private Button btn_BData;
         private MenuStrip menuStrip;
-        private ToolStripTextBox toolStripTextBox1;
+        private ToolStripTextBox TextBoxRole;
         private Label label2;
         private RichTextBox textBoxPCStatus;
         private ToolStripMenuItem MainMenuItem;
@@ -323,5 +339,8 @@
         private ToolStripMenuItem menuItemFilter;
         private ComboBox comboBoxSelectTask;
         private Label label3;
+        private ToolStripTextBox TextBoxLogin;
+        private Button btn_taskSave;
+        private ToolStripMenuItem MenuItemRegist;
     }
 }
