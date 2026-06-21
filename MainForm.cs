@@ -1,11 +1,16 @@
+using Microsoft.VisualBasic.Logging;
 using MSTSCLib;
 using MySqlX.XDevAPI.Relational;
 using PCAdministration_;
 using RoyalApps.Community.Rdp;
 using System.Data;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
+using System.Text;
+using System.Text.Json;
 using static PCADM.BDataForm;
 
 namespace PCADM
@@ -16,6 +21,12 @@ namespace PCADM
         {
             InitializeComponent();
             ContextFilter = new ContextFilter(grid, menuItemFilter);
+            // Запускаем сервер при открытии окна
+            this.Load += MainWindow_Loaded;
+
+            // Останавливаем сервер при закрытии окна
+            this.Closing += MainWindow_Closing;
+            this.Text += (GetLocalIpAddresses() + "\n");
         }
         ContextFilter ContextFilter;
         private void button5_Click(object sender, EventArgs e)
@@ -201,6 +212,106 @@ namespace PCADM
             Role.RoleType userRole = form.UserRole;
             TextBoxRole.Text = userRole.ToString();
             //
+        }
+        private const int Port = 65432;
+        private TcpListener? _server;
+        private bool _isRunning = false;
+        private void MainWindow_Loaded(object? sender, EventArgs e)
+        {
+            _isRunning = true;
+            // Запуск сервера в фоновом потоке, чтобы UI не зависал
+            Task.Run(() => StartServerAsync());
+            
+        }
+        private async Task StartServerAsync()
+        {
+            try
+            {
+                _server = new TcpListener(IPAddress.Any, Port);
+                _server.Start();
+
+                while (_isRunning)
+                {
+                    TcpClient client = await _server.AcceptTcpClientAsync();
+                    _ = Task.Run(() => HandleClientAsync(client));
+                }
+            }
+            catch (Exception ex)
+            {
+                UpdateUiLog($"Ошибка сервера: {ex.Message}\n");
+            }
+        }
+        private async Task HandleClientAsync(TcpClient client)
+        {
+            string? ip = ((IPEndPoint?)client.Client.RemoteEndPoint)?.Address.ToString();
+
+            try
+            {
+                using (client)
+                using (NetworkStream stream = client.GetStream())
+                {
+                    byte[] buffer = new byte[1024];
+                    int bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length);
+
+                    if (bytesRead > 0)
+                    {
+                        string jsonString = Encoding.UTF8.GetString(buffer, 0, bytesRead);
+
+                        using (JsonDocument doc = JsonDocument.Parse(jsonString))
+                        {
+                            JsonElement root = doc.RootElement;
+
+                            string? hostname = root.GetProperty("hostname").GetString();
+                            double cpu = root.GetProperty("cpu_usage").GetDouble();
+                            double ram = root.GetProperty("ram_usage").GetDouble();
+                            double disk = root.GetProperty("disk_usage").GetDouble();
+
+                            // Формируем красивую строку для вывода
+                            string report = $"[{DateTime.Now:HH:mm:ss}] ПК: {hostname} ({ip})\n" +
+                                            $" -- CPU: {cpu}% | RAM: {ram}% | С: {disk}%\n" +
+                                            $"{new string('-', 45)}\n";
+
+                            // Отправляем текст в UI поток
+                            UpdateUiLog(report);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                UpdateUiLog($"Ошибка чтения от {ip}: {ex.Message}\n");
+            }
+        }
+        private void UpdateUiLog(string message)
+        {
+            textBoxPCStatus.Invoke(() =>
+            {
+                textBoxPCStatus.Text += message;
+            });
+        }
+
+
+        private void MainWindow_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
+        {
+            _isRunning = false;
+            _server?.Stop();
+        }
+        private string GetLocalIpAddresses()
+        {
+            var host = Dns.GetHostEntry(Dns.GetHostName());
+            var ipList = new System.Collections.Generic.List<string>();
+
+            foreach (var ip in host.AddressList)
+            {
+                // Отбираем только IPv4 адреса и исключаем локальную петлю 127.0.0.1
+                if (ip.AddressFamily == AddressFamily.InterNetwork && ip.ToString() != "127.0.0.1")
+                {
+                    ipList.Add(ip.ToString());
+                }
+            }
+
+            // Если сетевых интерфейсов несколько (Wi-Fi и провод), вернет их через запятую
+            return ipList.Count > 0 ? string.Join(", ", ipList) : "127.0.0.1";
         }
     }
 }

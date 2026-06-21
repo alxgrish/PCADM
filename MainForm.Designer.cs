@@ -48,13 +48,13 @@
             menuStrip = new MenuStrip();
             TextBoxRole = new ToolStripTextBox();
             MainMenuItem = new ToolStripMenuItem();
+            MenuItemRegist = new ToolStripMenuItem();
+            TextBoxLogin = new ToolStripTextBox();
             label2 = new Label();
             textBoxPCStatus = new RichTextBox();
             comboBoxSelectTask = new ComboBox();
             label3 = new Label();
             btn_taskSave = new Button();
-            TextBoxLogin = new ToolStripTextBox();
-            MenuItemRegist = new ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)grid).BeginInit();
             contextMenu.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox2).BeginInit();
@@ -222,6 +222,20 @@
             MainMenuItem.Size = new Size(48, 23);
             MainMenuItem.Text = "Файл";
             // 
+            // MenuItemRegist
+            // 
+            MenuItemRegist.Name = "MenuItemRegist";
+            MenuItemRegist.Size = new Size(107, 22);
+            MenuItemRegist.Text = "Войти";
+            MenuItemRegist.Click += MenuItemRegist_Click;
+            // 
+            // TextBoxLogin
+            // 
+            TextBoxLogin.Alignment = ToolStripItemAlignment.Right;
+            TextBoxLogin.Name = "TextBoxLogin";
+            TextBoxLogin.Size = new Size(100, 23);
+            TextBoxLogin.Text = "Логин";
+            // 
             // label2
             // 
             label2.AutoSize = true;
@@ -266,20 +280,6 @@
             btn_taskSave.TabIndex = 2;
             btn_taskSave.Text = "Принять задание";
             btn_taskSave.UseVisualStyleBackColor = true;
-            // 
-            // TextBoxLogin
-            // 
-            TextBoxLogin.Alignment = ToolStripItemAlignment.Right;
-            TextBoxLogin.Name = "TextBoxLogin";
-            TextBoxLogin.Size = new Size(100, 23);
-            TextBoxLogin.Text = "Логин";
-            // 
-            // MenuItemRegist
-            // 
-            MenuItemRegist.Name = "MenuItemRegist";
-            MenuItemRegist.Size = new Size(180, 22);
-            MenuItemRegist.Text = "Войти";
-            MenuItemRegist.Click += MenuItemRegist_Click;
             // 
             // MainForm
             // 
