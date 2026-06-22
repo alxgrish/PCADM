@@ -140,24 +140,29 @@
             btn_qrCode.TabIndex = 2;
             btn_qrCode.Text = "QR-код";
             btn_qrCode.UseVisualStyleBackColor = true;
+            btn_qrCode.Click += btn_qrCode_Click;
             // 
             // btn_taskComplite
             // 
+            btn_taskComplite.Enabled = false;
             btn_taskComplite.Location = new Point(12, 76);
             btn_taskComplite.Name = "btn_taskComplite";
             btn_taskComplite.Size = new Size(143, 23);
             btn_taskComplite.TabIndex = 2;
             btn_taskComplite.Text = "Завершить задание";
             btn_taskComplite.UseVisualStyleBackColor = true;
+            btn_taskComplite.Click += btn_taskComplete_Click;
             // 
             // btn_pingToPC
             // 
+            btn_pingToPC.Enabled = false;
             btn_pingToPC.Location = new Point(172, 76);
             btn_pingToPC.Name = "btn_pingToPC";
             btn_pingToPC.Size = new Size(143, 23);
             btn_pingToPC.TabIndex = 2;
             btn_pingToPC.Text = "Пинг на пк";
             btn_pingToPC.UseVisualStyleBackColor = true;
+            btn_pingToPC.Click += btn_pingToPC_Click;
             // 
             // btn_remoteDesctop
             // 
@@ -212,6 +217,7 @@
             // 
             TextBoxRole.Alignment = ToolStripItemAlignment.Right;
             TextBoxRole.Name = "TextBoxRole";
+            TextBoxRole.ReadOnly = true;
             TextBoxRole.Size = new Size(100, 23);
             TextBoxRole.Text = "Роль";
             // 
@@ -227,12 +233,13 @@
             MenuItemRegist.Name = "MenuItemRegist";
             MenuItemRegist.Size = new Size(107, 22);
             MenuItemRegist.Text = "Войти";
-            MenuItemRegist.Click += MenuItemRegist_Click;
+            MenuItemRegist.Click += MenuItemReg_Click;
             // 
             // TextBoxLogin
             // 
             TextBoxLogin.Alignment = ToolStripItemAlignment.Right;
             TextBoxLogin.Name = "TextBoxLogin";
+            TextBoxLogin.ReadOnly = true;
             TextBoxLogin.Size = new Size(100, 23);
             TextBoxLogin.Text = "Логин";
             // 
@@ -274,12 +281,14 @@
             // 
             // btn_taskSave
             // 
+            btn_taskSave.Enabled = false;
             btn_taskSave.Location = new Point(12, 47);
             btn_taskSave.Name = "btn_taskSave";
             btn_taskSave.Size = new Size(143, 23);
             btn_taskSave.TabIndex = 2;
             btn_taskSave.Text = "Принять задание";
             btn_taskSave.UseVisualStyleBackColor = true;
+            btn_taskSave.Click += btn_taskSave_Click;
             // 
             // MainForm
             // 
