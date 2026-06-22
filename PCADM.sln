@@ -5,6 +5,8 @@ VisualStudioVersion = 17.14.37111.16
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PCADM", "PCADM.csproj", "{D0717814-9C93-4096-BE0F-E388983E2DC4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PCADM.Mobile", "PCADM.Mobile/PCADM.Mobile.csproj", "{1D1BCD08-D967-41F3-B8F4-D8F00571CD6E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
