@@ -151,11 +151,9 @@
             btn_taskComplite.TabIndex = 2;
             btn_taskComplite.Text = "Завершить задание";
             btn_taskComplite.UseVisualStyleBackColor = true;
-            btn_taskComplite.Click += btn_taskComplete_Click;
             // 
             // btn_pingToPC
             // 
-            btn_pingToPC.Enabled = false;
             btn_pingToPC.Location = new Point(172, 76);
             btn_pingToPC.Name = "btn_pingToPC";
             btn_pingToPC.Size = new Size(143, 23);
@@ -288,7 +286,6 @@
             btn_taskSave.TabIndex = 2;
             btn_taskSave.Text = "Принять задание";
             btn_taskSave.UseVisualStyleBackColor = true;
-            btn_taskSave.Click += btn_taskSave_Click;
             // 
             // MainForm
             // 

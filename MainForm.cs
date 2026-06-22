@@ -12,6 +12,8 @@ using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using ZXing;
+using ZXing.QrCode;
 using static PCADM.BDataForm;
 
 namespace PCADM
@@ -344,6 +346,13 @@ namespace PCADM
             // Если сетевых интерфейсов несколько (Wi-Fi и провод), вернет их через запятую
             return ipList.Count > 0 ? string.Join(", ", ipList) : "127.0.0.1";
         }
+
+        private void btn_qrCode_Click(object sender, EventArgs e)
+        {
+            QRCodeForm qr = new QRCodeForm(userId.ToString());
+            qr.ShowDialog();
+        }
+
         private async void btn_pingToPC_Click(object sender, EventArgs e)
         {
             // Получаем IP-адрес из текстового поля на форме
@@ -372,21 +381,6 @@ namespace PCADM
             {
                 UpdateUiLog($"Клиент с IP {targetIp} не найден или отключен.");
             }
-        }
-
-        private void btn_taskSave_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void btn_taskComplete_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void btn_qrCode_Click(object sender, EventArgs e)
-        {
-
         }
     }
 }
