@@ -158,6 +158,7 @@
             btn_pingToPC.TabIndex = 2;
             btn_pingToPC.Text = "Пинг на пк";
             btn_pingToPC.UseVisualStyleBackColor = true;
+            btn_pingToPC.Click += btn_pingToPC_Click;
             // 
             // btn_remoteDesctop
             // 
@@ -212,6 +213,7 @@
             // 
             TextBoxRole.Alignment = ToolStripItemAlignment.Right;
             TextBoxRole.Name = "TextBoxRole";
+            TextBoxRole.ReadOnly = true;
             TextBoxRole.Size = new Size(100, 23);
             TextBoxRole.Text = "Роль";
             // 
@@ -227,12 +229,13 @@
             MenuItemRegist.Name = "MenuItemRegist";
             MenuItemRegist.Size = new Size(107, 22);
             MenuItemRegist.Text = "Войти";
-            MenuItemRegist.Click += MenuItemRegist_Click;
+            MenuItemRegist.Click += MenuItemReg_Click;
             // 
             // TextBoxLogin
             // 
             TextBoxLogin.Alignment = ToolStripItemAlignment.Right;
             TextBoxLogin.Name = "TextBoxLogin";
+            TextBoxLogin.ReadOnly = true;
             TextBoxLogin.Size = new Size(100, 23);
             TextBoxLogin.Text = "Логин";
             // 

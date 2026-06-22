@@ -53,7 +53,7 @@ namespace PCADM
             DialogResult = DialogResult.OK;
         }
         public int UserId;
-        public string UserLogin;
+        public string? UserLogin;
         public Role.RoleType UserRole;
         private void pictureBox_Click(object? sender, EventArgs? e)
         {

@@ -3,6 +3,7 @@ using MSTSCLib;
 using MySqlX.XDevAPI.Relational;
 using PCAdministration_;
 using RoyalApps.Community.Rdp;
+using System.Collections.Concurrent;
 using System.Data;
 using System.Linq;
 using System.Net;
@@ -22,10 +23,10 @@ namespace PCADM
             InitializeComponent();
             ContextFilter = new ContextFilter(grid, menuItemFilter);
             // Запускаем сервер при открытии окна
-            this.Load += MainWindow_Loaded;
+            this.Load += MainForm_Loaded;
 
             // Останавливаем сервер при закрытии окна
-            this.Closing += MainWindow_Closing;
+            this.Closing += MainForm_Closing;
             this.Text += (GetLocalIpAddresses() + "\n");
         }
         ContextFilter ContextFilter;
@@ -197,7 +198,7 @@ namespace PCADM
             comboBoxSelectTask.ValueMember = "Id";
         }
         int? userId;
-        private void MenuItemRegist_Click(object sender, EventArgs e)
+        private void MenuItemReg_Click(object sender, EventArgs e)
         {
             var form = new RegForm();
             if (form.ShowDialog() != DialogResult.OK)
@@ -214,87 +215,117 @@ namespace PCADM
             //
         }
         private const int Port = 65432;
-        private TcpListener? _server;
-        private bool _isRunning = false;
-        private void MainWindow_Loaded(object? sender, EventArgs e)
+        private TcpListener? _listener;
+        private CancellationTokenSource? _serverCts;
+
+        // Потокобезопасная коллекция для хранения подключенных клиентов
+        // Ключ: IP-адрес (или IP:Порт), Значение: StreamWriter для отправки данных
+        private readonly ConcurrentDictionary<string, StreamWriter> _connectedClients =
+            new ConcurrentDictionary<string, StreamWriter>();
+        private async void MainForm_Loaded(object? sender, EventArgs e)
         {
-            _isRunning = true;
-            // Запуск сервера в фоновом потоке, чтобы UI не зависал
-            Task.Run(() => StartServerAsync());
-            
-        }
-        private async Task StartServerAsync()
-        {
+            /*_isRunning = true;
             try
             {
                 _server = new TcpListener(IPAddress.Any, Port);
                 _server.Start();
+                UpdateUiLog($"[Сервер]: Запущен на порту {Port}. Ожидание подключений...\n");
 
                 while (_isRunning)
                 {
                     TcpClient client = await _server.AcceptTcpClientAsync();
-                    _ = Task.Run(() => HandleClientAsync(client));
+                    _ = Task.Run(() => HandleClientLoopAsync(client)); // Обработка в фоне
                 }
             }
-            catch (Exception ex)
+            catch (Exception ex) when (_isRunning) // Игнорируем ошибку при штатном закрытии приложения
             {
                 UpdateUiLog($"Ошибка сервера: {ex.Message}\n");
-            }
-        }
-        private async Task HandleClientAsync(TcpClient client)
-        {
-            string? ip = ((IPEndPoint?)client.Client.RemoteEndPoint)?.Address.ToString();
+            }*/
+            _serverCts = new CancellationTokenSource();
+            _listener = new TcpListener(IPAddress.Any, Port);
 
             try
             {
-                using (client)
-                using (NetworkStream stream = client.GetStream())
+                _listener.Start();
+
+                while (!_serverCts.Token.IsCancellationRequested)
                 {
-                    byte[] buffer = new byte[1024];
-                    int bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length);
-
-                    if (bytesRead > 0)
-                    {
-                        string jsonString = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-
-                        using (JsonDocument doc = JsonDocument.Parse(jsonString))
-                        {
-                            JsonElement root = doc.RootElement;
-
-                            string? hostname = root.GetProperty("hostname").GetString();
-                            double cpu = root.GetProperty("cpu_usage").GetDouble();
-                            double ram = root.GetProperty("ram_usage").GetDouble();
-                            double disk = root.GetProperty("disk_usage").GetDouble();
-
-                            // Формируем красивую строку для вывода
-                            string report = $"[{DateTime.Now:HH:mm:ss}] ПК: {hostname} ({ip})\n" +
-                                            $" -- CPU: {cpu}% | RAM: {ram}% | С: {disk}%\n" +
-                                            $"{new string('-', 45)}\n";
-
-                            // Отправляем текст в UI поток
-                            UpdateUiLog(report);
-                        }
-                    }
+                    TcpClient client = await _listener.AcceptTcpClientAsync();
+                    _ = HandleClientAsync(client, _serverCts.Token);
                 }
             }
             catch (Exception ex)
             {
-                UpdateUiLog($"Ошибка чтения от {ip}: {ex.Message}\n");
+                UpdateUiLog($"Ошибка сервера: {ex.Message}");
+            }
+        }
+        private async Task HandleClientAsync(TcpClient client, CancellationToken ct)
+        {
+            // Получаем IP и порт клиента
+            var ipEndPoint = client.Client.RemoteEndPoint as IPEndPoint;
+            if (ipEndPoint == null) return;
+
+            // В качестве идентификатора можно использовать чистый IP (ipEndPoint.Address.ToString())
+            // Или связку IP:Порт (ipEndPoint.ToString()), если клиентов с одного IP несколько
+            string clientIp = ipEndPoint.Address.ToString();
+
+            UpdateUiLog($"[{clientIp}] Клиент подключился");
+
+            using (client)
+            using (NetworkStream stream = client.GetStream())
+            using (StreamReader reader = new StreamReader(stream))
+            using (StreamWriter writer = new StreamWriter(stream) { AutoFlush = true })
+            {
+                // Добавляем или обновляем клиента в нашей базе активных подключений
+                _connectedClients.AddOrUpdate(clientIp, writer, (key, oldWriter) => writer);
+
+                try
+                {
+                    string? line;
+                    while ((line = await reader.ReadLineAsync()) != null)
+                    {
+                        UpdateUiLog($"[{clientIp} Получено]: {line}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    UpdateUiLog($"[{clientIp}] Ошибка: {ex.Message}");
+                }
+                finally
+                {
+                    // При отключении обязательно удаляем клиента из коллекции
+                    _connectedClients.TryRemove(clientIp, out _);
+                    UpdateUiLog($"[{clientIp}] Клиент отключился");
+                }
             }
         }
         private void UpdateUiLog(string message)
         {
-            textBoxPCStatus.Invoke(() =>
+            /*textBoxPCStatus.Invoke(() =>
             {
                 textBoxPCStatus.Text += message;
-            });
+            });*/
+            // Проверяем, создано ли вообще окно. Если нет — записывать в UI пока нельзя
+            if (!textBoxPCStatus.IsHandleCreated)
+            {
+                // Опционально: можно временно вывести в отладочную консоль IDE
+                System.Diagnostics.Debug.WriteLine(message);
+                return;
+            }
+
+            if (textBoxPCStatus.InvokeRequired)
+            {
+                textBoxPCStatus.Invoke(new Action(() => UpdateUiLog(message)));
+            }
+            else
+            {
+                textBoxPCStatus.AppendText($"{DateTime.Now:HH:mm:ss} - {message}{Environment.NewLine}");
+            }
         }
-
-
-        private void MainWindow_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
+        private void MainForm_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
         {
-            _isRunning = false;
-            _server?.Stop();
+            _serverCts?.Cancel();
+            _listener?.Stop();
         }
         private string GetLocalIpAddresses()
         {
@@ -312,6 +343,35 @@ namespace PCADM
 
             // Если сетевых интерфейсов несколько (Wi-Fi и провод), вернет их через запятую
             return ipList.Count > 0 ? string.Join(", ", ipList) : "127.0.0.1";
+        }
+        private async void btn_pingToPC_Click(object sender, EventArgs e)
+        {
+            // Получаем IP-адрес из текстового поля на форме
+            string targetIp = "172.16.0.2";
+
+            if (string.IsNullOrEmpty(targetIp))
+            {
+                UpdateUiLog("Введите IP-адрес клиента!");
+                return;
+            }
+
+            // Ищем клиента в нашей коллекции по IP
+            if (_connectedClients.TryGetValue(targetIp, out StreamWriter? writer))
+            {
+                try
+                {
+                    UpdateUiLog($"[Сервер -> {targetIp}] Отправка внештатного запроса...");
+                    await writer.WriteLineAsync("NEED_MORE_INFO");
+                }
+                catch (Exception ex)
+                {
+                    UpdateUiLog($"Ошибка отправки клиенту {targetIp}: {ex.Message}");
+                }
+            }
+            else
+            {
+                UpdateUiLog($"Клиент с IP {targetIp} не найден или отключен.");
+            }
         }
     }
 }
