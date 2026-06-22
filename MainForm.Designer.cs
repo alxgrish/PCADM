@@ -39,7 +39,7 @@
             menuItemFilter = new ToolStripMenuItem();
             label1 = new Label();
             btn_qrCode = new Button();
-            btn_taskComplite = new Button();
+            btn_taskComplete = new Button();
             btn_pingToPC = new Button();
             btn_remoteDesctop = new Button();
             pictureBox2 = new PictureBox();
@@ -69,6 +69,7 @@
             grid.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             grid.ContextMenuStrip = contextMenu;
             grid.Location = new Point(12, 199);
+            grid.MultiSelect = false;
             grid.Name = "grid";
             grid.ReadOnly = true;
             grid.RowHeadersVisible = false;
@@ -142,15 +143,15 @@
             btn_qrCode.UseVisualStyleBackColor = true;
             btn_qrCode.Click += btn_qrCode_Click;
             // 
-            // btn_taskComplite
+            // btn_taskComplete
             // 
-            btn_taskComplite.Enabled = false;
-            btn_taskComplite.Location = new Point(12, 76);
-            btn_taskComplite.Name = "btn_taskComplite";
-            btn_taskComplite.Size = new Size(143, 23);
-            btn_taskComplite.TabIndex = 2;
-            btn_taskComplite.Text = "Завершить задание";
-            btn_taskComplite.UseVisualStyleBackColor = true;
+            btn_taskComplete.Location = new Point(12, 76);
+            btn_taskComplete.Name = "btn_taskComplete";
+            btn_taskComplete.Size = new Size(143, 23);
+            btn_taskComplete.TabIndex = 2;
+            btn_taskComplete.Text = "Завершить задание";
+            btn_taskComplete.UseVisualStyleBackColor = true;
+            btn_taskComplete.Click += btn_taskComplete_Click;
             // 
             // btn_pingToPC
             // 
@@ -279,13 +280,13 @@
             // 
             // btn_taskSave
             // 
-            btn_taskSave.Enabled = false;
             btn_taskSave.Location = new Point(12, 47);
             btn_taskSave.Name = "btn_taskSave";
             btn_taskSave.Size = new Size(143, 23);
             btn_taskSave.TabIndex = 2;
             btn_taskSave.Text = "Принять задание";
             btn_taskSave.UseVisualStyleBackColor = true;
+            btn_taskSave.Click += btn_taskSave_Click;
             // 
             // MainForm
             // 
@@ -300,7 +301,7 @@
             Controls.Add(btn_BData);
             Controls.Add(btn_pingToPC);
             Controls.Add(btn_Administ);
-            Controls.Add(btn_taskComplite);
+            Controls.Add(btn_taskComplete);
             Controls.Add(btn_taskSave);
             Controls.Add(label3);
             Controls.Add(label2);
@@ -325,7 +326,7 @@
         private DataGridView grid;
         private Label label1;
         private Button btn_qrCode;
-        private Button btn_taskComplite;
+        private Button btn_taskComplete;
         private Button btn_pingToPC;
         private Button btn_remoteDesctop;
         private PictureBox pictureBox2;

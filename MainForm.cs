@@ -1,5 +1,6 @@
 using Microsoft.VisualBasic.Logging;
 using MSTSCLib;
+using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI.Relational;
 using PCAdministration_;
 using RoyalApps.Community.Rdp;
@@ -381,6 +382,24 @@ namespace PCADM
             {
                 UpdateUiLog($"Клиент с IP {targetIp} не найден или отключен.");
             }
+        }
+
+        private void btn_taskSave_Click(object sender, EventArgs e)
+        {
+            if (comboBoxSelectTask.SelectedValue is null or -1 || grid.CurrentRow is null || userId is null)
+                return;
+            if (MessageBox.Show("Точно хотите принять задание?", "Тикеты", MessageBoxButtons.OKCancel, MessageBoxIcon.Information) != DialogResult.OK)
+                return;
+            Sql.QueryNonReturns("UPDATE `Tickets` SET `user_id` = @user_id, `status` = 'In_progress' WHERE `id` = @id", [new ("@user_id", userId), new("@id", grid.CurrentRow?.Cells[0])]);
+            menuUpdate_Click(null, null);
+        }
+
+        private void btn_taskComplete_Click(object sender, EventArgs e)
+        {
+            if (new ToArchiveForm(Convert.ToInt32(grid.CurrentRow?.Cells[0].Value), userId).ShowDialog() != DialogResult.OK)
+                return;
+            MessageBox.Show("Запись успешно добавлена в архив!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            menuUpdate_Click(null, null);
         }
     }
 }

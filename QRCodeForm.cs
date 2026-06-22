@@ -13,7 +13,7 @@ namespace PCADM
 {
     public partial class QRCodeForm : Form
     {
-        public QRCodeForm(string Value)
+        public QRCodeForm(string? Value)
         {
             InitializeComponent();
 
@@ -21,7 +21,7 @@ namespace PCADM
             GenerateQR(Value);
         }
 
-        private void GenerateQR(string text)
+        private void GenerateQR(string? text)
         {
             try
             {
