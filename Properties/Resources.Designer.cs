@@ -63,9 +63,29 @@ namespace PCADM.Properties {
         /// <summary>
         ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap closeEye {
+            get {
+                object obj = ResourceManager.GetObject("closeEye", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap image_29_10_25_04_27 {
             get {
                 object obj = ResourceManager.GetObject("image-29-10-25-04-27", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap openEye {
+            get {
+                object obj = ResourceManager.GetObject("openEye", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
