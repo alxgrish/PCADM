@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0-android</TargetFramework>
+    <UseMaui>true</UseMaui>
+    <SingleProject>true</SingleProject>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <ApplicationTitle>PCADM Mobile</ApplicationTitle>
+    <ApplicationId>alxgrish.PCADM.Mobile</ApplicationId>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Maui.Controls" Version="10.0.20" />
+    <PackageReference Include="MySqlConnector" Version="2.5.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <MauiXaml Include="App.xaml" />
+    <MauiXaml Include="AppShell.xaml" />
+    <MauiXaml Include="MainPage.xaml" />
+    <MauiXaml Include="AdminPage.xaml" />
+    <MauiXaml Include="BDataPage.xaml" />
+    <MauiXaml Include="AddEditPage.xaml" />
+  </ItemGroup>
+
+</Project>

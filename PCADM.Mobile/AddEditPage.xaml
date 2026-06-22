@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="PCADM.Mobile.AddEditPage"
+             Title="Добавить пользователя">
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="15">
+            <Label Text="Новый пользователь" FontSize="24" />
+            <Entry x:Name="FullNameEntry" Placeholder="ФИО" />
+            <Entry x:Name="LoginEntry" Placeholder="Логин" />
+            <Entry x:Name="PasswordEntry" Placeholder="Пароль" IsPassword="True" />
+            <Picker x:Name="RolePicker" Title="Роль">
+                <Picker.ItemsSource>
+                    <x:Array Type="x:String">
+                        <x:String>User</x:String>
+                        <x:String>Manager</x:String>
+                        <x:String>Admin</x:String>
+                        <x:String>Main_Admin</x:String>
+                    </x:Array>
+                </Picker.ItemsSource>
+            </Picker>
+            <Button Text="Сохранить" Clicked="Save_Clicked" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
