@@ -23,7 +23,7 @@ namespace PCADM
             textBoxProblem.Text = Sql.QueryOneReturn("select concat(`type`, '(' , `code`, ')') from `Problem` where `id` = @id",
                 [ new ("@id", Sql.QueryOneReturn("select `problem_id` from `Tickets` where `id` = @id",
                     [ new ("@id", ticketId) ] )) ])?.ToString();
-            textBoxPC.Text = Sql.QueryOneReturn("select Concat(`pc_number`, '(', `cabinet_id`, ')', 'ip=(', `ip`, ')') from `PC` where `id` = @id",
+            textBoxPC.Text = Sql.QueryOneReturn("select Concat(`pc_number`, '(', `cabinet_id`, ')', ' ip=(', `ip`, ')') from `PC` where `id` = @id",
                 [ new("@id", Sql.QueryOneReturn("select `pc_id` from `Tickets` where `id` = @id", 
                     [new("@id", ticketId)])) ])?.ToString();
             comboBoxState.Items.AddRange(["Resolved", "In_progress", "Computing", "Not_resolved"]);
@@ -44,7 +44,7 @@ namespace PCADM
                     new ("@problem_id", Sql.QueryOneReturn("select `problem_id` from `Tickets` where `id` = @id", [ new("@id", ticketId) ])),
                     new ("@pc_id", Sql.QueryOneReturn("select `pc_id` from `Tickets` where `id` = @id", [ new("@id", ticketId) ])),
                     new ("@status", comboBoxState.Text),
-                    new ("@solution_and_info", textBoxComment.Text),
+                    new ("@solution_and_info", textBoxComment.Text.Trim()),
                 ]);
             Sql.QueryNonReturns("delete from `Tickets` where `id` = @id", [new("@id", ticketId)]);
         }
