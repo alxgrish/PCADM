@@ -1,4 +1,6 @@
-﻿namespace PCADM
+﻿using System.Windows.Forms;
+
+namespace PCADM
 {
     partial class MainForm
     {
@@ -31,10 +33,7 @@
             components = new System.ComponentModel.Container();
             grid = new DataGridView();
             contextMenu = new ContextMenuStrip(components);
-            menuAdd = new ToolStripMenuItem();
             menuPrint = new ToolStripMenuItem();
-            menuEdit = new ToolStripMenuItem();
-            menuDel = new ToolStripMenuItem();
             menuUpdate = new ToolStripMenuItem();
             menuItemFilter = new ToolStripMenuItem();
             label1 = new Label();
@@ -77,51 +76,31 @@
             grid.Size = new Size(450, 274);
             grid.TabIndex = 0;
             grid.SelectionChanged += Grid_SelectionChanged;
+            grid.CellFormatting += Grid_CellFormatting;
             // 
             // contextMenu
             // 
-            contextMenu.Items.AddRange(new ToolStripItem[] { menuAdd, menuPrint, menuEdit, menuDel, menuUpdate, menuItemFilter });
+            contextMenu.Items.AddRange(new ToolStripItem[] { menuPrint, menuUpdate, menuItemFilter });
             contextMenu.Name = "contextMenu";
-            contextMenu.Size = new Size(166, 136);
-            // 
-            // menuAdd
-            // 
-            menuAdd.Name = "menuAdd";
-            menuAdd.Size = new Size(165, 22);
-            menuAdd.Text = "Добавить";
-            menuAdd.Visible = false;
+            contextMenu.Size = new Size(248, 70);
             // 
             // menuPrint
             // 
             menuPrint.Name = "menuPrint";
-            menuPrint.Size = new Size(165, 22);
-            menuPrint.Text = "Печать историю";
-            // 
-            // menuEdit
-            // 
-            menuEdit.Name = "menuEdit";
-            menuEdit.Size = new Size(165, 22);
-            menuEdit.Text = "Редактировать";
-            menuEdit.Visible = false;
-            // 
-            // menuDel
-            // 
-            menuDel.Name = "menuDel";
-            menuDel.Size = new Size(165, 22);
-            menuDel.Text = "Удалить";
-            menuDel.Visible = false;
+            menuPrint.Size = new Size(247, 22);
+            menuPrint.Text = "Печать действительных данных";
             // 
             // menuUpdate
             // 
             menuUpdate.Name = "menuUpdate";
-            menuUpdate.Size = new Size(165, 22);
+            menuUpdate.Size = new Size(247, 22);
             menuUpdate.Text = "Обновить";
             menuUpdate.Click += menuUpdate_Click;
             // 
             // menuItemFilter
             // 
             menuItemFilter.Name = "menuItemFilter";
-            menuItemFilter.Size = new Size(165, 22);
+            menuItemFilter.Size = new Size(247, 22);
             menuItemFilter.Text = "Фильтр";
             // 
             // label1
@@ -230,7 +209,7 @@
             // MenuItemRegist
             // 
             MenuItemRegist.Name = "MenuItemRegist";
-            MenuItemRegist.Size = new Size(107, 22);
+            MenuItemRegist.Size = new Size(180, 22);
             MenuItemRegist.Text = "Войти";
             MenuItemRegist.Click += MenuItemReg_Click;
             // 
@@ -320,6 +299,7 @@
             PerformLayout();
         }
 
+        
 
         #endregion
 
@@ -338,10 +318,7 @@
         private RichTextBox textBoxPCStatus;
         private ToolStripMenuItem MainMenuItem;
         private ContextMenuStrip contextMenu;
-        private ToolStripMenuItem menuAdd;
         private ToolStripMenuItem menuPrint;
-        private ToolStripMenuItem menuEdit;
-        private ToolStripMenuItem menuDel;
         private ToolStripMenuItem menuUpdate;
         private ToolStripMenuItem menuItemFilter;
         private ComboBox comboBoxSelectTask;

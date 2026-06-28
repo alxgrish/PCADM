@@ -16,6 +16,7 @@ using System.Text.Json;
 using ZXing;
 using ZXing.QrCode;
 using static PCADM.BDataForm;
+using static PCAdministration_.Role;
 
 namespace PCADM
 {
@@ -31,6 +32,8 @@ namespace PCADM
             // Останавливаем сервер при закрытии окна
             this.Closing += MainForm_Closing;
             this.Text += (GetLocalIpAddresses() + "\n");
+            setRole(Role.RoleType.None);
+            menuUpdate_Click(null, null);
         }
         ContextFilter ContextFilter;
         private void button5_Click(object sender, EventArgs e)
@@ -49,7 +52,34 @@ namespace PCADM
             BDataForm form = new();
             form.ShowDialog();
         }
+        private void Grid_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        {
+            /*foreach (DataGridViewRow row in grid.Rows)
+            {
+                int TaskNum = Convert.ToInt32(row.Cells[5].Value);
+                if (TaskNum is 0)
+                    row.DefaultCellStyle.BackColor = ColorTranslator.FromHtml("#61CD28");
+                else if (TaskNum is 1 or 2)
+                    row.DefaultCellStyle.BackColor = Color.Yellow;
+                else row.DefaultCellStyle.BackColor = ColorTranslator.FromHtml("#FF5333");
+            }*/
 
+            // Берем значение из 5-го столбца ТОЛЬКО для текущей перерисовываемой строки
+            var cellValue = grid.Rows[e.RowIndex].Cells[5].Value;
+
+            if (cellValue is not null && int.TryParse(cellValue.ToString(), out int taskNum))
+            {
+                // Получаем ссылку на стиль текущей строки
+                DataGridViewCellStyle rowStyle = grid.Rows[e.RowIndex].DefaultCellStyle;
+
+                if (taskNum == 0)
+                    rowStyle.BackColor = ColorTranslator.FromHtml("#61CD28");
+                else if (taskNum is 1 or 2)
+                    rowStyle.BackColor = Color.Yellow;
+                else
+                    rowStyle.BackColor = ColorTranslator.FromHtml("#FF5333");
+            }
+        }
         private void menuUpdate_Click(object? sender, EventArgs? e)
         {
 
@@ -71,15 +101,7 @@ namespace PCADM
             grid.DataSource = tb;
             if (grid.ColumnCount > 0)
                 grid.Columns[0].Visible = false;
-            foreach (DataGridViewRow row in grid.Rows)
-            {
-                int TaskNum = Convert.ToInt32(row.Cells[5].Value);
-                if (TaskNum is 0)
-                    row.DefaultCellStyle.BackColor = ColorTranslator.FromHtml("#61CD28");
-                else if (TaskNum is 1 or 2)
-                    row.DefaultCellStyle.BackColor = Color.Yellow;
-                else row.DefaultCellStyle.BackColor = ColorTranslator.FromHtml("#FF5333");
-            }
+            
             grid.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
             grid.Visible = true;
             ContextFilter.ResetFilter(grid, menuItemFilter);
@@ -216,6 +238,38 @@ namespace PCADM
             Role.RoleType userRole = form.UserRole;
             TextBoxRole.Text = userRole.ToString();
             //
+            setRole(userRole);
+        }
+        private void setRole(Role.RoleType role)
+        {
+            btn_remoteDesctop.Enabled = false;
+            btn_BData.Enabled = false;
+            btn_Administ.Enabled = false;
+            btn_taskComplete.Enabled = false;
+            btn_taskSave.Enabled = false;
+
+            switch (role)
+            {
+                case Role.RoleType.None:
+                    break;
+                case Role.RoleType.User:
+                    break;
+                case Role.RoleType.Manager:
+                    btn_remoteDesctop.Enabled = true;
+                    btn_BData.Enabled = true;
+                    btn_taskComplete.Enabled = true;
+                    btn_taskSave.Enabled = true;
+                    break;
+                case Role.RoleType.Admin or Role.RoleType.MainAdmin:
+                    btn_remoteDesctop.Enabled = true;
+                    btn_BData.Enabled = true;
+                    btn_Administ.Enabled = true;
+                    btn_taskComplete.Enabled = true;
+                    btn_taskSave.Enabled = true;
+                    break;
+                /*case :
+                    break;*/
+            }
         }
         private const int Port = 65432;
         private TcpListener? _listener;
@@ -227,23 +281,6 @@ namespace PCADM
             new ConcurrentDictionary<string, StreamWriter>();
         private async void MainForm_Loaded(object? sender, EventArgs e)
         {
-            /*_isRunning = true;
-            try
-            {
-                _server = new TcpListener(IPAddress.Any, Port);
-                _server.Start();
-                UpdateUiLog($"[Сервер]: Запущен на порту {Port}. Ожидание подключений...\n");
-
-                while (_isRunning)
-                {
-                    TcpClient client = await _server.AcceptTcpClientAsync();
-                    _ = Task.Run(() => HandleClientLoopAsync(client)); // Обработка в фоне
-                }
-            }
-            catch (Exception ex) when (_isRunning) // Игнорируем ошибку при штатном закрытии приложения
-            {
-                UpdateUiLog($"Ошибка сервера: {ex.Message}\n");
-            }*/
             _serverCts = new CancellationTokenSource();
             _listener = new TcpListener(IPAddress.Any, Port);
 
@@ -386,11 +423,13 @@ namespace PCADM
 
         private void btn_taskSave_Click(object sender, EventArgs e)
         {
-            if (comboBoxSelectTask.SelectedValue is null or -1 || grid.CurrentRow is null || userId is null)
+            if (comboBoxSelectTask.SelectedValue is null or -1 || grid.CurrentRow is null || (int?)grid.CurrentRow.Cells[5].Value is 0 || userId is null)
                 return;
             if (MessageBox.Show("Точно хотите принять задание?", "Тикеты", MessageBoxButtons.OKCancel, MessageBoxIcon.Information) != DialogResult.OK)
                 return;
-            Sql.QueryNonReturns("UPDATE `Tickets` SET `user_id` = @user_id, `status` = 'In_progress' WHERE `id` = @id", [new ("@user_id", userId), new("@id", grid.CurrentRow?.Cells[0])]);
+            Sql.QueryNonReturns("UPDATE `Tickets` SET `user_id` = @user_id, " +
+                "`status` = 'In_progress' WHERE `id` = @id", 
+                [new ("@user_id", userId), new("@id", comboBoxSelectTask.SelectedValue)]);
             menuUpdate_Click(null, null);
         }
 
@@ -398,7 +437,7 @@ namespace PCADM
         {
             if (new ToArchiveForm(Convert.ToInt32(grid.CurrentRow?.Cells[0].Value), userId).ShowDialog() != DialogResult.OK)
                 return;
-            MessageBox.Show("Запись успешно добавлена в архив!", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show("Данные по заданию сохранены!", "Тикеты", MessageBoxButtons.OK, MessageBoxIcon.Information);
             menuUpdate_Click(null, null);
         }
     }
