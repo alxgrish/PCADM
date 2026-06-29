@@ -8,11 +8,13 @@ using System.Collections.Concurrent;
 using System.Data;
 using System.Linq;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using System.Windows.Forms;
 using ZXing;
 using ZXing.QrCode;
 using static PCADM.BDataForm;
@@ -101,10 +103,118 @@ namespace PCADM
             grid.DataSource = tb;
             if (grid.ColumnCount > 0)
                 grid.Columns[0].Visible = false;
-            
+
             grid.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
             grid.Visible = true;
             ContextFilter.ResetFilter(grid, menuItemFilter);
+            _ = PingGridAsync(grid);
+        }
+        /*private static async Task PingGridAsync(DataGridView grid)
+        {
+            await Task.Run(() => Parallel.ForEach(grid.Rows.Cast<DataGridViewRow>(), async row =>
+            {
+                if (row.IsNewRow) return;
+
+                // Читаем IP из cells[3] и сразу запускаем асинхронный пинг
+                string? ip = null;
+                grid.Invoke(() => ip = row.Cells[2].Value?.ToString()?.Trim());
+                if (string.IsNullOrEmpty(ip)) return;
+
+                string res = string.Empty;
+                int ires = 0;
+                try
+                {
+                    using var ping = new Ping();
+                    var reply = await ping.SendPingAsync(ip, 1000);
+                    res = reply.Status == IPStatus.Success ? $"Пингуется {reply.RoundtripTime}мс" : reply.Status.ToString();
+                    ires = reply.Status == IPStatus.Success ? 2 : 1;
+                }
+                catch { res = "Сбой"; }
+
+                // Записываем результат в последнюю ячейку
+                grid.Invoke(() => row.Cells[row.Cells.Count - 1].Value = res);
+                grid.Invoke(() => row.Cells[row.Cells.Count - 1].Style.BackColor = ires == 0 ? Color.Red : ires == 1 ? Color.Yellow : Color.Green);
+            }));
+        }*/
+        /// <summary>
+        /// 1. Метод для пинга ОДНОЙ конкретной строки (универсальный)
+        /// </summary>
+        /// <param name="row"></param>
+        /// <returns></returns>
+        private async Task PingRowAsync(DataGridViewRow row)
+        {
+            if (row.IsNewRow) return;
+
+            // Читаем IP из cells[2] 
+            string? ip = null;
+            row.DataGridView?.Invoke(() => ip = row.Cells[2].Value?.ToString()?.Trim());
+            if (string.IsNullOrEmpty(ip))
+                return;
+
+            string res;
+            Color backColor = Color.Red; // По умолчанию Сбой/Ошибка
+
+            try
+            {
+                using var ping = new Ping();
+                var reply = await ping.SendPingAsync(ip, 1000);
+
+                if (reply.Status == IPStatus.Success)
+                {
+                    if (_connectedClients.TryGetValue(ip, out StreamWriter? writer))
+                    {
+                        try
+                        {
+                            await writer.WriteLineAsync("NEED_MORE_INFO");
+                            res = $"Пингуется {reply.RoundtripTime}мс\\Клиент активен";
+                            backColor = Color.Green;
+                        }
+                        catch
+                        {
+                            res = "Сбой";
+                        }
+                    }
+                    else
+                    {
+                        res = $"Пингуется {reply.RoundtripTime}мс\\Клиент не активен";
+                        backColor = Color.Yellow;
+                    }
+                }
+                else
+                {
+                    res = $"Нет связи: {reply.Status.ToString()}";
+                }
+            }
+            catch
+            {
+                res = "Сбой";
+            }
+
+            // Записываем результат и цвет в UI-потоке
+            UpdateUiLog(res, row.Index);
+            /*row.DataGridView?.Invoke(() =>
+            {
+                var lastCell = row.Cells[row.Cells.Count - 1];
+                lastCell.Value = res;
+                lastCell.Style.BackColor = backColor;
+            });*/
+        }
+
+        /// <summary>
+        /// 2. Метод для параллельного пинга ВСЕХ строк таблицы
+        /// </summary>
+        /// <param name="grid"></param>
+        /// <returns></returns>
+        private async Task PingGridAsync(DataGridView grid)
+        {
+            // Превращаем строки в массив, чтобы Parallel.ForEachAsync мог с ними работать
+            var rows = grid.Rows.Cast<DataGridViewRow>().ToArray();
+
+            // Фоновый поток + правильный асинхронный параллельный цикл
+            await Task.Run(() => Parallel.ForEachAsync(rows, async (row, ct) =>
+            {
+                await PingRowAsync(row);
+            }));
         }
         private void Grid_SelectionChanged(object sender, EventArgs e)
         {
@@ -267,8 +377,8 @@ namespace PCADM
                     btn_taskComplete.Enabled = true;
                     btn_taskSave.Enabled = true;
                     break;
-                /*case :
-                    break;*/
+                    /*case :
+                        break;*/
             }
         }
         private const int Port = 65432;
@@ -294,9 +404,9 @@ namespace PCADM
                     _ = HandleClientAsync(client, _serverCts.Token);
                 }
             }
-            catch (Exception ex)
+            catch
             {
-                UpdateUiLog($"Ошибка сервера: {ex.Message}");
+
             }
         }
         private async Task HandleClientAsync(TcpClient client, CancellationToken ct)
@@ -308,8 +418,6 @@ namespace PCADM
             // В качестве идентификатора можно использовать чистый IP (ipEndPoint.Address.ToString())
             // Или связку IP:Порт (ipEndPoint.ToString()), если клиентов с одного IP несколько
             string clientIp = ipEndPoint.Address.ToString();
-
-            UpdateUiLog($"[{clientIp}] Клиент подключился");
 
             using (client)
             using (NetworkStream stream = client.GetStream())
@@ -324,42 +432,61 @@ namespace PCADM
                     string? line;
                     while ((line = await reader.ReadLineAsync()) != null)
                     {
-                        UpdateUiLog($"[{clientIp} Получено]: {line}");
+                        int rowIndex = -1;
+
+                        // Безопасно ищем индекс строки с нужным IP в UI-потоке
+                        grid.Invoke(() =>
+                        {
+                            foreach (DataGridViewRow row in grid.Rows)
+                            {
+                                if (row.IsNewRow) continue;
+
+                                // Сравниваем IP из ячейки cells (индекс 2) с полученным clientIp
+                                if (row.Cells[2].Value?.ToString()?.Trim() == clientIp)
+                                {
+                                    rowIndex = row.Index;
+                                    break; // Строка найдена, выходим из цикла поиска
+                                }
+                            }
+                        });
+
+                        // Если строка найдена (rowIndex не равен -1), работаем с ней
+                        if (rowIndex != -1)
+                        {
+                            UpdateUiLog(line, rowIndex);
+                            // Здесь ваш код (например, обновить статус этой строки, зная её индекс)
+                            // ЗАМЕНИТЬ НА КЕЙС С ОШИБКАМИ
+                        }
+
                     }
-                }
-                catch (Exception ex)
-                {
-                    UpdateUiLog($"[{clientIp}] Ошибка: {ex.Message}");
                 }
                 finally
                 {
                     // При отключении обязательно удаляем клиента из коллекции
                     _connectedClients.TryRemove(clientIp, out _);
-                    UpdateUiLog($"[{clientIp}] Клиент отключился");
                 }
             }
         }
-        private void UpdateUiLog(string message)
+        private void UpdateUiLog(string message, int? id = null)
         {
-            /*textBoxPCStatus.Invoke(() =>
+            if (id is null)
             {
-                textBoxPCStatus.Text += message;
-            });*/
-            // Проверяем, создано ли вообще окно. Если нет — записывать в UI пока нельзя
-            if (!textBoxPCStatus.IsHandleCreated)
-            {
-                // Опционально: можно временно вывести в отладочную консоль IDE
-                System.Diagnostics.Debug.WriteLine(message);
-                return;
-            }
-
-            if (textBoxPCStatus.InvokeRequired)
-            {
-                textBoxPCStatus.Invoke(new Action(() => UpdateUiLog(message)));
+                MessageBox.Show(message, "UpdateUiLog", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             else
             {
-                textBoxPCStatus.AppendText($"{DateTime.Now:HH:mm:ss} - {message}{Environment.NewLine}");
+                if (grid.InvokeRequired)
+                {
+                    grid.Invoke(new Action(() => UpdateUiLog(message, id)));
+                }
+                else
+                {
+                    try
+                    {
+                        grid.Rows[id.Value].Cells[grid.ColumnCount - 1].Value = message;
+                    }
+                    catch { }
+                }
             }
         }
         private void MainForm_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
@@ -384,43 +511,18 @@ namespace PCADM
             // Если сетевых интерфейсов несколько (Wi-Fi и провод), вернет их через запятую
             return ipList.Count > 0 ? string.Join(", ", ipList) : "127.0.0.1";
         }
-
         private void btn_qrCode_Click(object sender, EventArgs e)
         {
             QRCodeForm qr = new QRCodeForm(userId.ToString());
             qr.ShowDialog();
         }
-
-        private async void btn_pingToPC_Click(object sender, EventArgs e)
+        private void btn_pingToPC_Click(object sender, EventArgs e)
         {
             // Получаем IP-адрес из текстового поля на форме
-            string targetIp = "172.16.0.2";
-
-            if (string.IsNullOrEmpty(targetIp))
-            {
-                UpdateUiLog("Введите IP-адрес клиента!");
+            if (grid.CurrentRow is null)
                 return;
-            }
-
-            // Ищем клиента в нашей коллекции по IP
-            if (_connectedClients.TryGetValue(targetIp, out StreamWriter? writer))
-            {
-                try
-                {
-                    UpdateUiLog($"[Сервер -> {targetIp}] Отправка внештатного запроса...");
-                    await writer.WriteLineAsync("NEED_MORE_INFO");
-                }
-                catch (Exception ex)
-                {
-                    UpdateUiLog($"Ошибка отправки клиенту {targetIp}: {ex.Message}");
-                }
-            }
-            else
-            {
-                UpdateUiLog($"Клиент с IP {targetIp} не найден или отключен.");
-            }
+            _ = PingRowAsync(grid.CurrentRow);
         }
-
         private void btn_taskSave_Click(object sender, EventArgs e)
         {
             if (comboBoxSelectTask.SelectedValue is null or -1 || grid.CurrentRow is null || (int?)grid.CurrentRow.Cells[5].Value is 0 || userId is null)
@@ -428,17 +530,44 @@ namespace PCADM
             if (MessageBox.Show("Точно хотите принять задание?", "Тикеты", MessageBoxButtons.OKCancel, MessageBoxIcon.Information) != DialogResult.OK)
                 return;
             Sql.QueryNonReturns("UPDATE `Tickets` SET `user_id` = @user_id, " +
-                "`status` = 'In_progress' WHERE `id` = @id", 
-                [new ("@user_id", userId), new("@id", comboBoxSelectTask.SelectedValue)]);
+                "`status` = 'In_progress' WHERE `id` = @id",
+                [new("@user_id", userId), new("@id", comboBoxSelectTask.SelectedValue)]);
             menuUpdate_Click(null, null);
         }
-
         private void btn_taskComplete_Click(object sender, EventArgs e)
         {
             if (new ToArchiveForm(Convert.ToInt32(grid.CurrentRow?.Cells[0].Value), userId).ShowDialog() != DialogResult.OK)
                 return;
             MessageBox.Show("Данные по заданию сохранены!", "Тикеты", MessageBoxButtons.OK, MessageBoxIcon.Information);
             menuUpdate_Click(null, null);
+        }
+
+        private void MainForm_Resize(object sender, EventArgs e)
+        {
+            // Ограничиваем минимальный размер формы, чтобы элементы не накладывались
+            this.MinimumSize = new Size(800, 500);
+
+            // 1. Вычисляем доступную ширину для нижних элементов
+            int totalWidth = this.ClientSize.Width - 36; // 36 - это сумма отступов (12 слева, 12 справа, 12 между ними)
+            int halfWidth = totalWidth / 2;
+
+            // 2. Изменяем размеры и положение таблицы (Левая часть)
+            grid.Width = halfWidth;
+            grid.Height = this.ClientSize.Height - grid.Top - 12; // 12 - отступ снизу
+
+            // 3. Изменяем положение элементов управления над правым полем
+            int rightColumnLeft = grid.Left + halfWidth + 12; // Координата X для правой колонки
+
+            label2.Left = rightColumnLeft;
+
+            // Перемещаем комбобокс и его метку к правому краю
+            label3.Left = this.ClientSize.Width - label3.Width - 12;
+            comboBoxSelectTask.Left = this.ClientSize.Width - comboBoxSelectTask.Width - 12;
+
+            // 4. Изменяем размеры и положение текстового поля (Правая часть)
+            textBoxPCStatus.Left = rightColumnLeft;
+            textBoxPCStatus.Width = this.ClientSize.Width - rightColumnLeft - 12;
+            textBoxPCStatus.Height = grid.Height; // Высота такая же, как у таблицы
         }
     }
 }

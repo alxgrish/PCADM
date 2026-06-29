@@ -75,8 +75,8 @@ namespace PCADM
             grid.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             grid.Size = new Size(450, 274);
             grid.TabIndex = 0;
-            grid.SelectionChanged += Grid_SelectionChanged;
             grid.CellFormatting += Grid_CellFormatting;
+            grid.SelectionChanged += Grid_SelectionChanged;
             // 
             // contextMenu
             // 
@@ -209,7 +209,7 @@ namespace PCADM
             // MenuItemRegist
             // 
             MenuItemRegist.Name = "MenuItemRegist";
-            MenuItemRegist.Size = new Size(180, 22);
+            MenuItemRegist.Size = new Size(107, 22);
             MenuItemRegist.Text = "Войти";
             MenuItemRegist.Click += MenuItemReg_Click;
             // 
@@ -290,6 +290,7 @@ namespace PCADM
             MainMenuStrip = menuStrip;
             Name = "MainForm";
             Text = "ФИО ПОЛЬЗОВАТЕЛЯ";
+            Resize += MainForm_Resize;
             ((System.ComponentModel.ISupportInitialize)grid).EndInit();
             contextMenu.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)pictureBox2).EndInit();
@@ -299,7 +300,7 @@ namespace PCADM
             PerformLayout();
         }
 
-        
+
 
         #endregion
 
