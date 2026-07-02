@@ -26,33 +26,11 @@ namespace PCADM
         }
         private void LoadUsers()
         {
-            string query = "SELECT `User`.`id`, `full_name` AS 'ФИО', `login`, `role`, '********' AS 'Пароль' " +
+            usersTable = Sql.Query("SELECT `User`.`id`, `full_name` AS 'ФИО', `login`, `role`, '********' AS 'Пароль', " +
                 "CONCAT(`Cabinet`.`name`, '-', `Cabinet`.`floor`) AS 'Закреплённый кабинет' " +
                 "FROM `User` LEFT JOIN `Cabinet` ON `User`.`linked_cabinet_id` = `Cabinet`.`id` " +
-                "ORDER BY `User`.`id`;";
-            usersTable = Sql.Query(query);
-            if (usersTable != null)
-            {
-                dgvUsers.DataSource = usersTable;
-
-                // Настройка отображения колонок
-                /*if (dgvUsers.Columns.Contains("id"))
-                    dgvUsers.Columns["id"].HeaderText = "ID";
-                if (dgvUsers.Columns.Contains("full_name"))
-                    dgvUsers.Columns["full_name"].HeaderText = "Полное имя";
-                if (dgvUsers.Columns.Contains("login"))
-                    dgvUsers.Columns["login"].HeaderText = "Логин";
-                if (dgvUsers.Columns.Contains("role"))
-                    dgvUsers.Columns["role"].HeaderText = "Роль";
-                if (dgvUsers.Columns.Contains("cabinet_name"))
-                    dgvUsers.Columns["cabinet_name"].HeaderText = "Кабинет";
-                if (dgvUsers.Columns.Contains("floor"))
-                    dgvUsers.Columns["floor"].HeaderText = "Этаж";
-
-                // Скрыть технические колонки
-                if (dgvUsers.Columns.Contains("cabinet_id"))
-                    dgvUsers.Columns["cabinet_id"].Visible = false;*/
-            }
+                "ORDER BY `User`.`id`;");
+            dgvUsers.DataSource = usersTable;
         }
         private void LoadCabinets()
         {
@@ -187,15 +165,15 @@ namespace PCADM
             if (dgvUsers.SelectedRows.Count > 0)
             {
                 DataGridViewRow row = dgvUsers.SelectedRows[0];
-                txtFullName.Text = row.Cells["full_name"].Value?.ToString() ?? "";
+                txtFullName.Text = row.Cells["ФИО"].Value?.ToString() ?? "";
                 txtLogin.Text = row.Cells["login"].Value?.ToString() ?? "";
                 txtPassword.Clear();
                 string role = row.Cells["role"].Value?.ToString() ?? "User";
                 if (cmbRole.Items.Contains(role))
                     cmbRole.SelectedItem = role;
-                if (row.Cells["cabinet_id"].Value != DBNull.Value && row.Cells["cabinet_id"].Value != null)
+                if (row.Cells["id"].Value != DBNull.Value && row.Cells["id"].Value != null)
                 {
-                    int cabinetId = Convert.ToInt32(row.Cells["cabinet_id"].Value);
+                    int cabinetId = Convert.ToInt32(row.Cells["id"].Value);
                     cmbCabinet.SelectedValue = cabinetId;
                 }
                 else

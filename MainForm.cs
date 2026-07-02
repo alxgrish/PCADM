@@ -6,6 +6,7 @@ using PCAdministration_;
 using RoyalApps.Community.Rdp;
 using System.Collections.Concurrent;
 using System.Data;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
@@ -525,7 +526,7 @@ namespace PCADM
         }
         private void btn_taskSave_Click(object sender, EventArgs e)
         {
-            if (comboBoxSelectTask.SelectedValue is null or -1 || grid.CurrentRow is null || (int?)grid.CurrentRow.Cells[5].Value is 0 || userId is null)
+            if (comboBoxSelectTask.SelectedValue is null or -1 || grid.CurrentRow is null || (int?)(long?)grid.CurrentRow.Cells[5].Value is 0 || userId is null)
                 return;
             if (MessageBox.Show("Точно хотите принять задание?", "Тикеты", MessageBoxButtons.OKCancel, MessageBoxIcon.Information) != DialogResult.OK)
                 return;
@@ -568,6 +569,33 @@ namespace PCADM
             textBoxPCStatus.Left = rightColumnLeft;
             textBoxPCStatus.Width = this.ClientSize.Width - rightColumnLeft - 12;
             textBoxPCStatus.Height = grid.Height; // Высота такая же, как у таблицы
+        }
+
+        private void toolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                // Получаем абсолютный путь к папке, где лежит ваш .exe
+                string exeDir = AppDomain.CurrentDomain.BaseDirectory;
+                string chmPath = Path.Combine(exeDir, "helper.chm");
+
+                var startInfo = new ProcessStartInfo
+                {
+                    FileName = chmPath,
+                    WorkingDirectory = exeDir, // Рабочая папка должна совпадать с расположением .exe
+                    UseShellExecute = true,  // Обязательно для открытия файлов через ассоциацию Windows (например, .chm)
+                    CreateNoWindow = false,
+                    RedirectStandardOutput = false,
+                    RedirectStandardError = false
+                };
+
+                using var process = Process.Start(startInfo);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Возникло исключение. Возможно, файл справки отсутствует в проекте!\nДетали ошибки: " + ex.Message,
+                                "Справка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }

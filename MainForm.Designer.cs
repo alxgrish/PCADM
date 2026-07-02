@@ -54,6 +54,7 @@ namespace PCADM
             comboBoxSelectTask = new ComboBox();
             label3 = new Label();
             btn_taskSave = new Button();
+            toolStripMenuItem1 = new ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)grid).BeginInit();
             contextMenu.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox2).BeginInit();
@@ -201,7 +202,7 @@ namespace PCADM
             // 
             // MainMenuItem
             // 
-            MainMenuItem.DropDownItems.AddRange(new ToolStripItem[] { MenuItemRegist });
+            MainMenuItem.DropDownItems.AddRange(new ToolStripItem[] { MenuItemRegist, toolStripMenuItem1 });
             MainMenuItem.Name = "MainMenuItem";
             MainMenuItem.Size = new Size(48, 23);
             MainMenuItem.Text = "Файл";
@@ -209,7 +210,7 @@ namespace PCADM
             // MenuItemRegist
             // 
             MenuItemRegist.Name = "MenuItemRegist";
-            MenuItemRegist.Size = new Size(107, 22);
+            MenuItemRegist.Size = new Size(180, 22);
             MenuItemRegist.Text = "Войти";
             MenuItemRegist.Click += MenuItemReg_Click;
             // 
@@ -266,6 +267,13 @@ namespace PCADM
             btn_taskSave.Text = "Принять задание";
             btn_taskSave.UseVisualStyleBackColor = true;
             btn_taskSave.Click += btn_taskSave_Click;
+            // 
+            // toolStripMenuItem1
+            // 
+            toolStripMenuItem1.Name = "toolStripMenuItem1";
+            toolStripMenuItem1.Size = new Size(180, 22);
+            toolStripMenuItem1.Text = "Справка";
+            toolStripMenuItem1.Click += toolStripMenuItem1_Click;
             // 
             // MainForm
             // 
@@ -327,5 +335,6 @@ namespace PCADM
         private ToolStripTextBox TextBoxLogin;
         private Button btn_taskSave;
         private ToolStripMenuItem MenuItemRegist;
+        private ToolStripMenuItem toolStripMenuItem1;
     }
 }
