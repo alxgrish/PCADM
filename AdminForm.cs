@@ -26,41 +26,16 @@ namespace PCADM
         }
         private void LoadUsers()
         {
-
-            string query = "SELECT `User`.`id`, `full_name` AS 'ФИО', `login`, `role`, '********' AS 'Пароль' " +
+            usersTable = Sql.Query("SELECT `User`.`id`, `full_name` AS 'ФИО', `login`, `role`, '********' AS 'Пароль', " +
                 "CONCAT(`Cabinet`.`name`, '-', `Cabinet`.`floor`) AS 'Закреплённый кабинет' " +
                 "FROM `User` LEFT JOIN `Cabinet` ON `User`.`linked_cabinet_id` = `Cabinet`.`id` " +
-                "ORDER BY `User`.`id`;";
-            usersTable = Sql.Query(query);
-            if (usersTable != null)
-            {
-                dgvUsers.DataSource = usersTable;
-
-                // Настройка отображения колонок
-                /*if (dgvUsers.Columns.Contains("id"))
-                    dgvUsers.Columns["id"].HeaderText = "ID";
-                if (dgvUsers.Columns.Contains("full_name"))
-                    dgvUsers.Columns["full_name"].HeaderText = "Полное имя";
-                if (dgvUsers.Columns.Contains("login"))
-                    dgvUsers.Columns["login"].HeaderText = "Логин";
-                if (dgvUsers.Columns.Contains("role"))
-                    dgvUsers.Columns["role"].HeaderText = "Роль";
-                if (dgvUsers.Columns.Contains("cabinet_name"))
-                    dgvUsers.Columns["cabinet_name"].HeaderText = "Кабинет";
-                if (dgvUsers.Columns.Contains("floor"))
-                    dgvUsers.Columns["floor"].HeaderText = "Этаж";
-
-                // Скрыть технические колонки
-                if (dgvUsers.Columns.Contains("cabinet_id"))
-                    dgvUsers.Columns["cabinet_id"].Visible = false;*/
-            }
+                "ORDER BY `User`.`id`;");
+            dgvUsers.DataSource = usersTable;
         }
-
         private void LoadCabinets()
         {
             string query = "SELECT id, CONCAT(floor, ' - ', name) as display_name FROM Cabinet ORDER BY floor, name";
             DataTable? cabinets = Sql.Query(query);
-
             if (cabinets != null && cabinets.Rows.Count > 0)
             {
                 // Добавляем пустую строку для выбора "Не привязан"
@@ -68,18 +43,15 @@ namespace PCADM
                 emptyRow["id"] = DBNull.Value;
                 emptyRow["display_name"] = "Не привязан";
                 cabinets.Rows.InsertAt(emptyRow, 0);
-
                 cmbCabinet.DisplayMember = "display_name";
                 cmbCabinet.ValueMember = "id";
                 cmbCabinet.DataSource = cabinets;
                 cmbCabinet.SelectedIndex = 0;
             }
         }
-
         private void ApplyRolePermissions()
         {
             Role.RoleType roleType = currentUserRole.GetRole();
-
             // MainAdmin имеет полный доступ
             if (roleType == Role.RoleType.MainAdmin)
             {
@@ -88,7 +60,6 @@ namespace PCADM
                 cmbRole.Items.AddRange(new object[] { "User", "Manager", "Admin", "Main_Admin" });
                 return;
             }
-
             // Admin не может создавать MainAdmin
             if (roleType == Role.RoleType.Admin)
             {
@@ -117,11 +88,9 @@ namespace PCADM
             using (MySqlConnection connection = new MySqlConnection(GetConnectionStringWithoutDatabase()))
             {
                 connection.Open();
-
                 using (MySqlCommand cmd = new MySqlCommand())
                 {
                     cmd.Connection = connection;
-
                     // Получаем все таблицы
                     cmd.CommandText = "SHOW TABLES FROM Answer_Book_problem";
                     using (var reader = cmd.ExecuteReader())
@@ -132,7 +101,6 @@ namespace PCADM
                             tables.Add(reader[0]?.ToString() ?? string.Empty);
                         }
                         reader.Close();
-
                         using (StreamWriter writer = new StreamWriter(filePath, false, Encoding.UTF8))
                         {
                             // Записываем заголовок
@@ -142,7 +110,6 @@ namespace PCADM
                             writer.WriteLine("CREATE DATABASE IF NOT EXISTS `Answer_Book_problem` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci */;");
                             writer.WriteLine("USE `Answer_Book_problem`;");
                             writer.WriteLine();
-
                             // Для каждой таблицы получаем структуру и данные
                             foreach (string table in tables)
                             {
@@ -159,7 +126,6 @@ namespace PCADM
                                     }
                                     createReader.Close();
                                 }
-
                                 // Данные таблицы
                                 cmd.CommandText = $"SELECT * FROM `{table}`";
                                 using (var dataReader = cmd.ExecuteReader())
@@ -168,7 +134,6 @@ namespace PCADM
                                     {
                                         writer.WriteLine($"-- Dumping data for table `{table}`");
                                         writer.WriteLine("--");
-
                                         while (dataReader.Read())
                                         {
                                             List<string> values = new List<string>();
@@ -189,7 +154,6 @@ namespace PCADM
                                     dataReader.Close();
                                 }
                             }
-
                             writer.WriteLine("-- Backup completed successfully");
                         }
                     }
@@ -201,17 +165,15 @@ namespace PCADM
             if (dgvUsers.SelectedRows.Count > 0)
             {
                 DataGridViewRow row = dgvUsers.SelectedRows[0];
-                txtFullName.Text = row.Cells["full_name"].Value?.ToString() ?? "";
+                txtFullName.Text = row.Cells["ФИО"].Value?.ToString() ?? "";
                 txtLogin.Text = row.Cells["login"].Value?.ToString() ?? "";
                 txtPassword.Clear();
-
                 string role = row.Cells["role"].Value?.ToString() ?? "User";
                 if (cmbRole.Items.Contains(role))
                     cmbRole.SelectedItem = role;
-
-                if (row.Cells["cabinet_id"].Value != DBNull.Value && row.Cells["cabinet_id"].Value != null)
+                if (row.Cells["id"].Value != DBNull.Value && row.Cells["id"].Value != null)
                 {
-                    int cabinetId = Convert.ToInt32(row.Cells["cabinet_id"].Value);
+                    int cabinetId = Convert.ToInt32(row.Cells["id"].Value);
                     cmbCabinet.SelectedValue = cabinetId;
                 }
                 else
@@ -220,7 +182,6 @@ namespace PCADM
                 }
             }
         }
-
         private void BtnAdd_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(txtLogin.Text))
@@ -229,29 +190,24 @@ namespace PCADM
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
-
             if (string.IsNullOrWhiteSpace(txtPassword.Text))
             {
                 MessageBox.Show("Пароль обязателен для заполнения!", "Ошибка",
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
-
             // Проверка существования логина
             string checkQuery = "SELECT COUNT(*) FROM User WHERE login = @login";
             MySqlParameter[] checkParams = { new MySqlParameter("@login", txtLogin.Text.Trim()) };
             object? result = Sql.QueryOneReturn(checkQuery, checkParams);
-
             if (result != null && Convert.ToInt64(result) > 0)
             {
                 MessageBox.Show("Пользователь с таким логином уже существует!", "Ошибка",
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
-
             string query = @"INSERT INTO User (full_name, login, password, role, linked_cabinet_id) 
                              VALUES (@full_name, @login, @password, @role, @cabinet_id)";
-
             object cabinetValue = DBNull.Value;
             if (cmbCabinet.SelectedValue != null && cmbCabinet.SelectedValue != DBNull.Value)
             {
@@ -263,7 +219,6 @@ namespace PCADM
                 }
                 catch { }
             }
-
             MySqlParameter[] parameters = {
                 new MySqlParameter("@full_name", txtFullName.Text.Trim()),
                 new MySqlParameter("@login", txtLogin.Text.Trim()),
@@ -280,7 +235,6 @@ namespace PCADM
                 BtnClear_Click(null, null);
             }
         }
-
         private void BtnUpdate_Click(object sender, EventArgs e)
         {
             if (dgvUsers.SelectedRows.Count == 0)
@@ -289,9 +243,7 @@ namespace PCADM
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
-
             int userId = Convert.ToInt32(dgvUsers.SelectedRows[0].Cells["id"].Value);
-
             object cabinetValue = DBNull.Value;
             if (cmbCabinet.SelectedValue != null && cmbCabinet.SelectedValue != DBNull.Value)
             {
@@ -303,9 +255,7 @@ namespace PCADM
                 }
                 catch { }
             }
-
             bool success;
-
             if (!string.IsNullOrWhiteSpace(txtPassword.Text))
             {
                 string query = @"UPDATE User SET full_name = @full_name, login = @login, password = @password, 
@@ -333,7 +283,6 @@ namespace PCADM
                 };
                 success = Sql.QueryNonReturns(query, parameters);
             }
-
             if (success)
             {
                 MessageBox.Show("Пользователь успешно обновлен!", "Успех",
@@ -341,7 +290,6 @@ namespace PCADM
                 LoadUsers();
             }
         }
-
         private void BtnDelete_Click(object sender, EventArgs e)
         {
             if (dgvUsers.SelectedRows.Count == 0)
@@ -350,13 +298,11 @@ namespace PCADM
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
-
             int userId = Convert.ToInt32(dgvUsers.SelectedRows[0].Cells["id"].Value);
             string? login = dgvUsers.SelectedRows[0].Cells["login"].Value?.ToString();
 
             DialogResult result = MessageBox.Show($"Удалить пользователя '{login}'?\nЭто действие необратимо!",
                 "Подтверждение удаления", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
-
             if (result == DialogResult.Yes)
             {
                 // Сначала обновляем связанные записи (устанавливаем NULL)
@@ -375,7 +321,6 @@ namespace PCADM
                 }
             }
         }
-
         private void BtnClear_Click(object? sender, EventArgs? e)
         {
             txtFullName.Clear();
@@ -387,7 +332,6 @@ namespace PCADM
                 cmbCabinet.SelectedIndex = 0;
             dgvUsers.ClearSelection();
         }
-
         private void BtnBackup_Click(object sender, EventArgs e)
         {
             using (SaveFileDialog sfd = new SaveFileDialog())
@@ -412,7 +356,6 @@ namespace PCADM
                 }
             }
         }
-
         private void BtnRestore_Click(object sender, EventArgs e)
         {
             using (OpenFileDialog ofd = new OpenFileDialog())
@@ -474,12 +417,10 @@ namespace PCADM
                 }
             }
         }
-
         private string GetConnectionStringWithoutDatabase()
         {
             return "Server=localhost;Port=3306;UserID=root;Password=;ConnectionTimeout=5;CharacterSet=utf8mb4";
         }
-
         private string EscapeString(string value)
         {
             if (value == null) return "";
